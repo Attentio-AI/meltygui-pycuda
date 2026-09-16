@@ -1,0 +1,34 @@
+from __future__ import annotations
+
+import atexit
+
+import meltygui_pycuda.driver as cuda
+
+
+# Initialize CUDA
+cuda.init()
+
+from meltygui_pycuda.tools import make_default_context
+
+
+def _retain_primary_context(dev):
+    context = dev.retain_primary_context()
+    context.push()
+    return context
+
+
+context = make_default_context(_retain_primary_context)
+device = context.get_device()
+
+
+def _finish_up():
+    global context
+    context.pop()
+    context = None
+
+    from meltygui_pycuda.tools import clear_context_caches
+
+    clear_context_caches()
+
+
+atexit.register(_finish_up)
