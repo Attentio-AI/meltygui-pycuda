@@ -1,0 +1,32 @@
+{
+  "tested_at": "2026-09-16T02:27:54.114560+00:00",
+  "package_version": "2026.1.post1",
+  "binding_build_toolkit": [
+    12,
+    1,
+    0
+  ],
+  "driver_api_version": 13020,
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "scope": "Toolkit matrix on one installed driver; not an older-driver certification",
+  "results": [
+    {
+      "toolkit": "11.8",
+      "passed": true,
+      "stdout": "Installed PyCUDA wheel: driver, compiler, GPU arrays, OpenGL and cuRAND imports passed\nGPU kernel, arrays, reduction, complex arithmetic and cuRAND passed: NVIDIA GeForce RTX 4090\n",
+      "stderr": ""
+    },
+    {
+      "toolkit": "12.1",
+      "passed": true,
+      "stdout": "Installed PyCUDA wheel: driver, compiler, GPU arrays, OpenGL and cuRAND imports passed\nGPU kernel, arrays, reduction, complex arithmetic and cuRAND passed: NVIDIA GeForce RTX 4090\n",
+      "stderr": ""
+    },
+    {
+      "toolkit": "13.0",
+      "passed": true,
+      "stdout": "Installed PyCUDA wheel: driver, compiler, GPU arrays, OpenGL and cuRAND imports passed\nGPU kernel, arrays, reduction, complex arithmetic and cuRAND passed: NVIDIA GeForce RTX 4090\n",
+      "stderr": ""
+    }
+  ]
+}

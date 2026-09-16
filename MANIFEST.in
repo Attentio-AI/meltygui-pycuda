@@ -35,4 +35,6 @@ include UPSTREAM.json
 recursive-include LICENSES *
 
 include README.md
+include CUDA_COMPATIBILITY.md
+include docs/cuda-matrix.json
 recursive-include tools *.py *.sh

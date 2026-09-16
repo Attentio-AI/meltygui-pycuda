@@ -20,6 +20,10 @@ OpenGL interoperability and cuRAND are enabled. Wheels bundle cuRAND with its
 NVIDIA CUDA 12.1 license; the driver and nvcc are not bundled. Runtime kernel
 compilation still requires a compatible CUDA toolkit and NVIDIA driver.
 
+CUDA toolkit **11, 12 and 13** are explicit compatibility targets. The same
+published wheel has passed GPU tests with 11.8, 12.1 and 13.0.2 on a current
+driver. See [the compatibility matrix and its limits](CUDA_COMPATIBILITY.md).
+
 ## Build
 
 Docker is required. The manylinux image and Python build dependencies are pinned.
