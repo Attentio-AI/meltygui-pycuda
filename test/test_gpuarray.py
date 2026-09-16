@@ -1384,9 +1384,9 @@ class TestGPUArray:
         # FIXME
         from pytest import skip
 
-        skip("https://github.com/inducer/meltygui_pycuda/issues/163")
+        skip("https://github.com/inducer/pycuda/issues/163")
         # crashes with  terminate called after throwing an instance
-        # of 'meltygui_pycuda::error'
+        # of 'pycuda::error'
         # what():  explicit_context_dependent failed: invalid device context -
         # no currently active context?
 
@@ -1412,7 +1412,7 @@ class TestGPUArray:
         # FIXME
         from pytest import skip
 
-        skip("https://github.com/inducer/meltygui_pycuda/issues/163")
+        skip("https://github.com/inducer/pycuda/issues/163")
 
         import meltygui_pycuda.tools
 
@@ -1690,10 +1690,10 @@ class TestGPUArray:
     @pytest.mark.parametrize("op", [operator.add, operator.sub, operator.mul,
                                     operator.truediv])
     def test_binary_ops_with_unequal_dtypes(self, ldtype, rdtype, op):
-        # See https://github.com/inducer/meltygui_pycuda/issues/372
+        # See https://github.com/inducer/pycuda/issues/372
         if op == operator.truediv and {ldtype, rdtype} <= {np.int32, np.int64}:
             pytest.xfail("Enable after"
-                         " gitlab.tiker.net/inducer/meltygui_pycuda/-/merge_requests/66"
+                         " gitlab.tiker.net/inducer/pycuda/-/merge_requests/66"
                          "is merged.")
 
         rng = np.random.default_rng(0)
@@ -1763,14 +1763,14 @@ class TestGPUArray:
         assert np.allclose(result[2 ** 32:], np.arange(1, 12 + 1))
 
     def test_noncontig_transpose(self):
-        # https://github.com/inducer/meltygui_pycuda/issues/385
+        # https://github.com/inducer/pycuda/issues/385
         d = gpuarray.zeros((1000, 15, 2048), "f")
         d.transpose(axes=(1, 0, 2))  # works
         d2 = d[:, 7:9, :]  # non C-contiguous
         d2.transpose(axes=(1, 0, 2))  # crashes for recent versions
 
     def test_copy_strides(self):
-        # https://github.com/inducer/meltygui_pycuda/issues/403
+        # https://github.com/inducer/pycuda/issues/403
         a = np.random.randn(22, 33).copy(order="f")
         a_dev = gpuarray.to_gpu(a)
         assert a_dev.strides == a.strides

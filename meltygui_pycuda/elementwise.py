@@ -50,7 +50,7 @@ def get_elwise_module(
     from meltygui_pycuda.compiler import SourceModule
     return SourceModule(
         """
-        #include <meltygui_pycuda-complex.hpp>
+        #include <pycuda-complex.hpp>
 
         %(preamble)s
 
@@ -101,7 +101,7 @@ def get_elwise_range_module(
 
     return SourceModule(
         """
-        #include <meltygui_pycuda-complex.hpp>
+        #include <pycuda-complex.hpp>
 
         %(preamble)s
 
@@ -300,7 +300,7 @@ def get_take_kernel(dtype, idx_dtype, vec_count=1):
         + [VectorArg(dtype, "dest" + str(i)) for i in range(vec_count)]
         + [ScalarArg(np.intp, "n")]
     )
-    preamble = "#include <meltygui_pycuda-helpers.hpp>\n\n" + "\n".join(
+    preamble = "#include <pycuda-helpers.hpp>\n\n" + "\n".join(
         "texture <%s, 1, cudaReadModeElementType> tex_src%d;" % (ctx["tex_tp"], i)
         for i in range(vec_count)
     )
@@ -338,7 +338,7 @@ def get_take_put_kernel(dtype, idx_dtype, with_offsets, vec_count=1):
         + [ScalarArg(np.intp, "n")]
     )
 
-    preamble = "#include <meltygui_pycuda-helpers.hpp>\n\n" + "\n".join(
+    preamble = "#include <pycuda-helpers.hpp>\n\n" + "\n".join(
         "texture <%s, 1, cudaReadModeElementType> tex_src%d;" % (ctx["tex_tp"], i)
         for i in range(vec_count)
     )
@@ -419,7 +419,7 @@ def get_linear_combination_kernel(summand_descriptors, dtype_z):
     from meltygui_pycuda.tools import dtype_to_ctype
 
     args = []
-    preamble = ["#include <meltygui_pycuda-helpers.hpp>\n\n"]
+    preamble = ["#include <pycuda-helpers.hpp>\n\n"]
     loop_prep = []
     summands = []
     tex_names = []
@@ -680,7 +680,7 @@ def get_conj_kernel(dtype, conj_dtype):
             "tp": dtype_to_ctype(dtype),
             "conj_tp": dtype_to_ctype(conj_dtype)
         },
-        "z[i] = meltygui_pycuda::conj(y[i])",
+        "z[i] = pycuda::conj(y[i])",
         "conj",
     )
 

@@ -36,6 +36,7 @@ def main():
         assert any("/licenses/LICENSE" in n for n in names)
         assert not any(n.startswith(("meltygui/", "meltygui_pro/", "meltyprivate/")) for n in names)
         if KIND == "pycuda":
+            assert any(d.startswith("numpy") for d in metadata.get_all("Requires-Dist", []))
             assert any("NVIDIA-CUDA-12.1-EULA" in n for n in names)
             assert any("libcurand" in n for n in names)
             assert not any(Path(n).name.startswith("libcuda.so") for n in names)

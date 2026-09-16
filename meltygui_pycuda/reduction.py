@@ -79,7 +79,7 @@ def get_reduction_module(
     from meltygui_pycuda.compiler import SourceModule
 
     src = """
-        #include <meltygui_pycuda-complex.hpp>
+        #include <pycuda-complex.hpp>
 
         #define BLOCK_SIZE %(block_size)d
         #define READ_AND_MAP(i) (%(map_expr)s)

@@ -55,9 +55,9 @@ N, x0, y0, side, L, power
 
 mod = SourceModule("""
     #include <stdio.h>
-    #include <meltygui_pycuda-complex.hpp>
+    #include <pycuda-complex.hpp>
     #include <math.h>
-    typedef   meltygui_pycuda::complex<double> pyComplex;
+    typedef   pycuda::complex<double> pyComplex;
 __device__ float norma(pyComplex z){
     return norm(z);
 }

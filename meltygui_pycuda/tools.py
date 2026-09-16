@@ -47,8 +47,8 @@ PageLockedMemoryPool = _drv.PageLockedMemoryPool
 PageLockedAllocator = _drv.PageLockedAllocator
 
 _fill_dtype_registry(respect_windows=True)
-get_or_register_dtype("meltygui_pycuda::complex<float>", np.complex64)
-get_or_register_dtype("meltygui_pycuda::complex<double>", np.complex128)
+get_or_register_dtype("pycuda::complex<float>", np.complex64)
+get_or_register_dtype("pycuda::complex<double>", np.complex128)
 
 
 # {{{ debug memory pool

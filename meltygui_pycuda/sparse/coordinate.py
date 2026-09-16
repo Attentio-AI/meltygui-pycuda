@@ -10,7 +10,7 @@ from meltygui_pycuda.compiler import SourceModule
 
 
 COO_FLAT_KERNEL_TEMPLATE = """
-#include <meltygui_pycuda-helpers.hpp>
+#include <pycuda-helpers.hpp>
 
 #define BLOCK_SIZE %(block_size)d
 #define WARP_SIZE %(warp_size)d

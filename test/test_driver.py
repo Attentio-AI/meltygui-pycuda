@@ -350,7 +350,7 @@ class TestDriver:
             A_gpu = gpuarray.zeros(A_cpu.shape, dtype=prec, order=orden)
 
             myKern = """
-            #include <meltygui_pycuda-helpers.hpp>
+            #include <pycuda-helpers.hpp>
             texture<fpName, 2, cudaReadModeElementType> mtx_tex;
 
             __global__ void copy_texture(cuPres *dest)
@@ -407,7 +407,7 @@ class TestDriver:
             A_gpu = gpuarray.zeros(A_cpu.shape, dtype=prec, order=orden)
 
             myKern = """
-            #include <meltygui_pycuda-helpers.hpp>
+            #include <pycuda-helpers.hpp>
             texture<fpName, cudaTextureType2DLayered, cudaReadModeElementType> mtx_tex;
 
             __global__ void copy_texture(cuPres *dest)
@@ -464,7 +464,7 @@ class TestDriver:
             A_gpu = gpuarray.zeros(A_cpu.shape, dtype=prec, order=orden)
 
             myKern = """
-            #include <meltygui_pycuda-helpers.hpp>
+            #include <pycuda-helpers.hpp>
             texture<fpName, 3, cudaReadModeElementType> mtx_tex;
 
             __global__ void copy_texture(cuPres *dest)
@@ -532,7 +532,7 @@ class TestDriver:
             A_gpu = gpuarray.to_gpu(A_cpu)  # Array randomized
 
             myKernRW = """
-            #include <meltygui_pycuda-helpers.hpp>
+            #include <pycuda-helpers.hpp>
 
             surface<void, cudaSurfaceType3D> mtx_tex;
 
@@ -606,7 +606,7 @@ class TestDriver:
             A_gpu = gpuarray.to_gpu(A_cpu)  # Array randomized
 
             myKernRW = """
-            #include <meltygui_pycuda-helpers.hpp>
+            #include <pycuda-helpers.hpp>
 
             surface<void, cudaSurfaceType2DLayered> mtx_tex;
 
@@ -887,7 +887,7 @@ class TestDriver:
             tp_cstr = dtype_to_ctype(tp)
             mod = SourceModule(
                 """
-            #include <meltygui_pycuda-helpers.hpp>
+            #include <pycuda-helpers.hpp>
 
             texture<fp_tex_%(tp)s, 1, cudaReadModeElementType> my_tex;
 
@@ -972,7 +972,7 @@ class TestDriver:
         drv.Context.synchronize()
 
     @mark_cuda_test
-    # https://github.com/inducer/meltygui_pycuda/issues/45
+    # https://github.com/inducer/pycuda/issues/45
     def test_recursive_launch(self):
         # Test contributed by Aditya Avinash Atluri
 

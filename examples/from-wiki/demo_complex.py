@@ -18,10 +18,10 @@ from meltygui_pycuda.elementwise import ElementwiseKernel
 
 
 complex_mul = ElementwiseKernel(
-        "meltygui_pycuda::complex<float> *x, meltygui_pycuda::complex<float> *y, meltygui_pycuda::complex<float> *z",
+        "pycuda::complex<float> *x, pycuda::complex<float> *y, pycuda::complex<float> *z",
         "z[i] = x[i] * y[i]",
         "complex_mul",
-        preamble="#include <meltygui_pycuda-complex.hpp>",)
+        preamble="#include <pycuda-complex.hpp>",)
 
 c_gpu = gpuarray.empty_like(a_gpu)
 complex_mul(a_gpu, b_gpu, c_gpu)

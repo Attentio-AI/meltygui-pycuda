@@ -190,7 +190,8 @@ def main():
         license="MIT",
         url="https://github.com/Attentio-AI/meltygui-pycuda",
         project_urls={
-            "Source": "https://github.com/inducer/pycuda",
+            "Source": "https://github.com/Attentio-AI/meltygui-pycuda",
+            "Upstream": "https://github.com/inducer/pycuda",
         },
         classifiers=[
             "Environment :: Console",
@@ -212,6 +213,7 @@ def main():
         packages=["meltygui_pycuda", "meltygui_pycuda.gl", "meltygui_pycuda.sparse", "meltygui_pycuda.compyte"],
         python_requires=">=3.12,<3.13",
         install_requires=[
+            "numpy>=1.26",
             "pytools>=2011.2",
             "platformdirs>=2.2.0",
             "mako",

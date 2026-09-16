@@ -63,7 +63,7 @@ try:
     os.add_dll_directory  # noqa: B018
 except AttributeError:
     # likely not on Py3.8 and Windows
-    # https://github.com/inducer/meltygui_pycuda/issues/213
+    # https://github.com/inducer/pycuda/issues/213
     pass
 else:
     _add_cuda_libdir_to_dll_path()

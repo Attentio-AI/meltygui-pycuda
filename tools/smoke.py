@@ -35,9 +35,15 @@ if args.gpu:
         ''', cache_dir=False)
         module.get_function('twice')(data, block=(64, 1, 1))
         np.testing.assert_array_equal(data.get(), source * 2)
-        random = meltygui_pycuda.curandom.rand((64,), dtype=np.float32).get()
+        np.testing.assert_array_equal((data + 1).get(), source * 2 + 1)
+        np.testing.assert_allclose(gpuarray.sum(data).get(), (source * 2).sum())
+        complex_source = source.astype(np.complex64) + 2j
+        complex_data = gpuarray.to_gpu(complex_source)
+        np.testing.assert_array_equal(complex_data.conj().get(), complex_source.conj())
+        generator = meltygui_pycuda.curandom.XORWOWRandomNumberGenerator()
+        random = generator.gen_uniform((64,), dtype=np.float32).get()
         assert random.shape == (64,) and np.all((random >= 0) & (random <= 1))
-        print('GPU kernel compilation, execution, round-trip and cuRAND passed:', cuda.Device(0).name())
+        print('GPU kernel, arrays, reduction, complex arithmetic and cuRAND passed:', cuda.Device(0).name())
     finally:
         context.pop()
         context.detach()
