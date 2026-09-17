@@ -32,8 +32,12 @@ def get_config_schema():
         make_boost_base_options,
     )
 
+    from os import environ
+
     nvcc_path = search_on_path(["nvcc", "nvcc.exe"])
-    if nvcc_path is None:
+    if environ.get("CUDA_ROOT"):
+        cuda_root_default = environ["CUDA_ROOT"]
+    elif nvcc_path is None:
         print("***************************************************************")
         print("*** WARNING: nvcc not in path.")
         print("*** May need to set CUDA_INC_DIR for installation to succeed.")
@@ -102,6 +106,51 @@ def get_config_schema():
     )
 
 
+PREBUILT_WHEELS = "Linux x86-64 (glibc 2.28+), CPython 3.11, 3.12 and 3.13"
+COMPILING_COMMANDS = {"bdist_wheel", "build_ext", "build", "install", "develop", "editable_wheel"}
+
+
+def announce_source_build(conf):
+    """Installers run this file only when no prebuilt wheel matches. Say so,
+    and stop before a minute of compilation when the CUDA headers are missing.
+    Release builds set MELTYGUI_PYCUDA_RELEASE_BUILD=1 to stay quiet."""
+    import os
+    import platform
+    import sys
+
+    if not COMPILING_COMMANDS.intersection(sys.argv) or os.environ.get("MELTYGUI_PYCUDA_RELEASE_BUILD"):
+        return
+    this_platform = (f"{platform.system()} {platform.machine()}, "
+                     f"{platform.python_implementation()} {platform.python_version()}")
+    rule = "*" * 72
+    print(f"""{rule}
+meltygui-pycuda: no prebuilt wheel matches this platform
+  this platform:   {this_platform}
+  prebuilt wheels: {PREBUILT_WHEELS}
+Compiling from source instead (about a minute). This needs a C++ compiler
+and an NVIDIA CUDA toolkit with nvcc on PATH, or CUDA_ROOT set.
+{rule}""", file=sys.stderr, flush=True)
+
+    if os.environ.get("MELTYGUI_PYCUDA_SKIP_PREFLIGHT"):
+        return
+    include_dirs = list(conf["CUDA_INC_DIR"] or [])
+    if conf["CUDA_ROOT"]:
+        include_dirs.append(join(conf["CUDA_ROOT"], "include"))
+    for variable in ("CPATH", "CPLUS_INCLUDE_PATH"):
+        include_dirs += [d for d in os.environ.get(variable, "").split(os.pathsep) if d]
+    include_dirs += ["/usr/include", "/usr/local/include"]
+    if not any(os.path.exists(join(d, "cuda.h")) for d in include_dirs):
+        raise SystemExit(f"""{rule}
+meltygui-pycuda cannot be installed here:
+  no prebuilt wheel matches this platform ({this_platform}),
+  and the source build cannot find the CUDA toolkit (cuda.h).
+Prebuilt wheels exist for: {PREBUILT_WHEELS}.
+Either use one of those Pythons, or install the CUDA toolkit and retry with
+nvcc on PATH or CUDA_ROOT=/path/to/cuda (MELTYGUI_PYCUDA_SKIP_PREFLIGHT=1
+skips this check). MeltyGUI's OpenGL/CPU rendering works without this package.
+{rule}""")
+
+
 def main():
     import sys
 
@@ -119,6 +168,7 @@ def main():
 
     hack_distutils()
     conf = get_config(get_config_schema())
+    announce_source_build(conf)
 
     EXTRA_SOURCES, EXTRA_DEFINES = set_up_shipped_boost_if_requested("pycuda", conf)
 
@@ -181,7 +231,7 @@ def main():
     setup(
         name="meltygui-pycuda",
         # metadata
-        version="2026.1.post1",
+        version="2026.1.post2",
         description="Python wrapper for Nvidia CUDA",
         long_description=open("MELTYGUI.md").read(),
         long_description_content_type="text/markdown",
@@ -204,6 +254,9 @@ def main():
             "Programming Language :: C++",
             "Programming Language :: Python",
             "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.11",
+            "Programming Language :: Python :: 3.12",
+            "Programming Language :: Python :: 3.13",
             "Topic :: Scientific/Engineering",
             "Topic :: Scientific/Engineering :: Mathematics",
             "Topic :: Scientific/Engineering :: Physics",
@@ -211,7 +264,7 @@ def main():
         ],
         # build info
         packages=["meltygui_pycuda", "meltygui_pycuda.gl", "meltygui_pycuda.sparse", "meltygui_pycuda.compyte"],
-        python_requires=">=3.12,<3.13",
+        python_requires=">=3.11,<3.14",
         install_requires=[
             "numpy>=1.26",
             "pytools>=2011.2",

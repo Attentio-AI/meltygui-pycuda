@@ -1,4 +1,4 @@
-"""Build the checked-out sources as a Linux x86-64 / CPython 3.12 wheel and sdist."""
+"""Build the checked-out sources as Linux x86-64 wheels (one per supported CPython) and an sdist."""
 import argparse
 import hashlib
 import json
@@ -10,6 +10,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 KIND = "pycuda"
+# manylinux interpreter tags; keep in step with python_requires and tools/verify.py.
+PYTHONS = ["cp311", "cp312", "cp313"]
 IMAGE = "quay.io/pypa/manylinux_2_28_x86_64@sha256:531d7aa844bbb0c131d4ab011d3db741c4abc8d498cd5ccc86121046f62303b4"
 
 
@@ -36,11 +38,11 @@ def main():
                    "-v", f"{ROOT / 'tools'}:/tools:ro"]
         if args.cuda_root:
             command += ["-v", f"{args.cuda_root.resolve()}:/usr/local/cuda-12.1:ro"]
-        subprocess.run([*command, IMAGE, "bash", "/tools/build_in_container.sh", KIND], check=True)
+        subprocess.run([*command, IMAGE, "bash", "/tools/build_in_container.sh", KIND, *PYTHONS], check=True)
     artifacts = [*output.glob("*.whl"), *output.glob("*.tar.gz")]
     revision = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True)
     receipt = {"kind": KIND, "upstream": json.loads((ROOT / "UPSTREAM.json").read_text()),
-               "build_image": IMAGE, "python": "CPython 3.12", "target": "manylinux_2_28_x86_64",
+               "build_image": IMAGE, "python": PYTHONS, "target": "manylinux_2_28_x86_64",
                "revision": revision.stdout.strip() or None,
                "sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in artifacts}}
     (output / "build.json").write_text(json.dumps(receipt, indent=2) + "\n")

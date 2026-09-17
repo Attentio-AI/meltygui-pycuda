@@ -35,13 +35,15 @@ jobs:
           uvx --from twine==7.0.0 twine check --strict dist/*.whl dist/*.tar.gz
       - name: Test isolated wheel installation
         run: |
-          uv venv "$RUNNER_TEMP/wheel-test" --python 3.12
-          uv pip install --python "$RUNNER_TEMP/wheel-test/bin/python" dist/*.whl
           # Hosted runners have no GPU driver. The toolkit stub permits import-only checks.
           mkdir -p "$RUNNER_TEMP/cuda-stub"
           ln -s "$RUNNER_TEMP/cuda-12.1/targets/x86_64-linux/lib/stubs/libcuda.so" "$RUNNER_TEMP/cuda-stub/libcuda.so.1"
           export LD_LIBRARY_PATH="$RUNNER_TEMP/cuda-stub"
-          "$RUNNER_TEMP/wheel-test/bin/python" -I tools/smoke.py
+          for version in 3.11 3.12 3.13; do
+            uv venv "$RUNNER_TEMP/wheel-test-$version" --python "$version"
+            uv pip install --python "$RUNNER_TEMP/wheel-test-$version/bin/python" --only-binary meltygui-pycuda --find-links dist meltygui-pycuda==2026.1.post2
+            "$RUNNER_TEMP/wheel-test-$version/bin/python" -I tools/smoke.py
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: release

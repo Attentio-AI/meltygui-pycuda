@@ -12,9 +12,22 @@ uv pip install meltygui-pycuda
 import meltygui_pycuda
 ```
 
-The first release is **2026.1.post1**, supporting Linux x86-64, CPython 3.12 and
-glibc 2.28 or newer. It installs `meltygui_pycuda` without overwriting the upstream
-`pycuda` package. Other platforms and Python versions are not supported yet.
+The current release is **2026.1.post2**, with wheels for Linux x86-64 (glibc 2.28
+or newer) on CPython 3.11, 3.12 and 3.13. It installs `meltygui_pycuda` without
+overwriting the upstream `pycuda` package.
+
+### When no wheel matches
+
+On any other platform or Python, pip and uv fall back to the source archive
+without saying that no wheel matched. The build prints a banner naming your
+platform and the prebuilt targets (installers show it with `-v`, or when the
+build fails), and stops at once with a short message if the CUDA headers are
+missing instead of compiling for a minute first. A source build needs a C++
+compiler and a CUDA toolkit: put `nvcc` on PATH or set `CUDA_ROOT`. It takes
+about a minute and links the toolkit's own cuRAND rather than a bundled copy.
+uv ignores the upper Python bound, so on a newer Python it also builds from
+source; pip refuses instead. Pass `--only-binary meltygui-pycuda` to make a
+missing wheel an error rather than a compilation.
 
 OpenGL interoperability and cuRAND are enabled. Wheels bundle cuRAND with its
 NVIDIA CUDA 12.1 license; the driver and nvcc are not bundled. Runtime kernel
@@ -50,7 +63,7 @@ Configure a pending GitHub publisher at https://pypi.org/manage/account/publishi
 | Workflow | `release.yml` |
 | Environment | `pypi` |
 
-Then, after the main-branch build passes, create and push `v2026.1.post1`.
+Then, after the main-branch build passes, create and push `v2026.1.post2`.
 No API token belongs in this repository.
 
 ## Licenses and changes

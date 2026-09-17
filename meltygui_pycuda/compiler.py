@@ -104,6 +104,8 @@ def compile_plain(source, options, keep, nvcc, cache_dir, target="cubin"):
             with open(cache_path, "rb") as cache_file:
                 return cache_file.read()
 
+        except FileNotFoundError:
+            pass  # a cache miss: the kernel has not been compiled yet
         except Exception as e:
             warn(f"Could not read cache file '{cache_path}': {e!s}", stacklevel=1)
 

@@ -1,4 +1,4 @@
-"""Verify the two release artifacts, package boundary, and included license notices."""
+"""Verify the release artifacts (a wheel per CPython and the sdist), package boundary, and included license notices."""
 from email.parser import BytesParser
 from pathlib import Path
 import argparse
@@ -7,28 +7,19 @@ import tarfile
 import zipfile
 
 KIND = "pycuda"
-VERSION = "2026.1.post1"
+VERSION = "2026.1.post2"
+PYTHONS = ["cp311", "cp312", "cp313"]
 NAMESPACE = "meltygui_" + KIND
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("directory", type=Path, nargs="?", default=Path("dist"))
-    args = parser.parse_args()
-    ref = os.environ.get("GITHUB_REF", "")
-    if ref.startswith("refs/tags/"):
-        assert ref == "refs/tags/v" + VERSION, "Tag must match the package version"
-    wheels = list(args.directory.glob("*.whl"))
-    archives = list(args.directory.glob("*.tar.gz"))
-    assert len(wheels) == len(archives) == 1, "Expected exactly one wheel and one sdist"
-    wheel = wheels[0]
-    assert "cp312-cp312-manylinux" in wheel.name
+def verify_wheel(wheel):
+    assert f"-{wheel.name.split('-')[2]}-manylinux" in wheel.name
     with zipfile.ZipFile(wheel) as archive:
         names = archive.namelist()
         metadata = BytesParser().parsebytes(archive.read(next(n for n in names if n.endswith(".dist-info/METADATA"))))
         assert metadata["Name"].replace("_", "-") == "meltygui-" + KIND
         assert metadata["Version"] == VERSION
-        assert "3.12" in metadata["Requires-Python"] and "3.13" in metadata["Requires-Python"]
+        assert "3.11" in metadata["Requires-Python"] and "3.14" in metadata["Requires-Python"]
         assert metadata["Home-page"] == "https://github.com/Attentio-AI/meltygui-" + KIND
         assert any(n.startswith(NAMESPACE + "/") for n in names)
         assert not any(n.startswith(KIND + "/") for n in names), "Must not overwrite upstream package"
@@ -40,6 +31,22 @@ def main():
             assert any("NVIDIA-CUDA-12.1-EULA" in n for n in names)
             assert any("libcurand" in n for n in names)
             assert not any(Path(n).name.startswith("libcuda.so") for n in names)
+    return metadata
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("directory", type=Path, nargs="?", default=Path("dist"))
+    args = parser.parse_args()
+    ref = os.environ.get("GITHUB_REF", "")
+    if ref.startswith("refs/tags/"):
+        assert ref == "refs/tags/v" + VERSION, "Tag must match the package version"
+    wheels = list(args.directory.glob("*.whl"))
+    archives = list(args.directory.glob("*.tar.gz"))
+    assert len(archives) == 1, "Expected exactly one sdist"
+    assert sorted(w.name.split("-")[2] for w in wheels) == PYTHONS, "Expected one wheel per supported CPython"
+    for wheel in wheels:
+        metadata = verify_wheel(wheel)
     with tarfile.open(archives[0]) as archive:
         names = archive.getnames()
         assert any(n.endswith("/UPSTREAM.json") for n in names)

@@ -4,7 +4,7 @@ The support target is CUDA toolkit families **11, 12 and 13** with one installed
 binding wheel per Python/platform combination. CUDA versions are not standard
 wheel tags: pip and uv cannot choose a wheel by querying the GPU or toolkit.
 
-The published `2026.1.post1` wheel is compiled against CUDA 12.1 and bundles its
+The published wheels (`2026.1.post1` and later) are compiled against CUDA 12.1 and bundle their
 cuRAND dependency. This is a build detail, not a requirement that the user's
 installed toolkit also be 12.1. The driver is supplied by the system, and runtime
 kernel compilation uses the user's `nvcc` and toolkit headers.
