@@ -231,7 +231,7 @@ def main():
     setup(
         name="meltygui-pycuda",
         # metadata
-        version="2026.1.post2",
+        version="2026.2",
         description="Python wrapper for Nvidia CUDA",
         long_description=open("MELTYGUI.md").read(),
         long_description_content_type="text/markdown",
