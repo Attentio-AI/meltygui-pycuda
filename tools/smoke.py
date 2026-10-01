@@ -10,9 +10,11 @@ import meltygui_pycuda.gl
 import meltygui_pycuda.curandom
 
 parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--expected-version')
 parser.add_argument('--gpu', action='store_true')
 args = parser.parse_args()
-assert importlib.metadata.version('meltygui-pycuda') == '2026.1.post2'
+if args.expected_version:
+    assert importlib.metadata.version('meltygui-pycuda') == args.expected_version
 assert importlib.util.find_spec('pycuda') is None
 assert cuda.get_version() == (12, 1, 0)
 assert hasattr(meltygui_pycuda.gl, 'RegisteredBuffer')

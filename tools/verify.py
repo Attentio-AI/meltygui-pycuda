@@ -2,12 +2,18 @@
 from email.parser import BytesParser
 from pathlib import Path
 import argparse
+import ast
 import os
 import tarfile
 import zipfile
 
 KIND = "pycuda"
-VERSION = "2026.1.post2"
+# Read setup metadata without executing the native build configuration.
+_SETUP = ast.parse((Path(__file__).resolve().parents[1] / "setup.py").read_text())
+VERSION = next(ast.literal_eval(keyword.value) for node in ast.walk(_SETUP)
+               if isinstance(node, ast.Call) and (isinstance(node.func, ast.Name) and node.func.id == "setup"
+                   or isinstance(node.func, ast.Attribute) and node.func.attr == "setup")
+               for keyword in node.keywords if keyword.arg == "version")
 PYTHONS = ["cp311", "cp312", "cp313"]
 NAMESPACE = "meltygui_" + KIND
 
@@ -36,6 +42,7 @@ def verify_wheel(wheel):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--version", action="version", version=VERSION)
     parser.add_argument("directory", type=Path, nargs="?", default=Path("dist"))
     args = parser.parse_args()
     ref = os.environ.get("GITHUB_REF", "")
