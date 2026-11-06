@@ -20,18 +20,29 @@ on:
         default: ''
 permissions:
   contents: read
+  actions: read
 jobs:
   build:
+    outputs:
+      prepared_run: ${{ steps.prepared.outputs.run_id }}
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.expected_sha || github.sha }}
+      - name: Reuse prepared release
+        id: prepared
+        if: inputs.publish || startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ inputs.expected_sha || github.sha }}
+        run: python3 tools/prepared_release.py release
       - uses: astral-sh/setup-uv@v6
         with:
           version: '0.11.19'
           python-version: '3.12'
       - name: Extract pinned CUDA 12.1 toolkit
+        if: steps.prepared.outputs.run_id == ''
         run: |
           image=nvidia/cuda@sha256:327c9e046fbf662275be0934742f7e5412f9b24402ee90bf4d649c1a21707912
           container=$(docker create "$image")
@@ -47,12 +58,15 @@ jobs:
             exit 1
           fi
       - name: Build wheel from source archive
+        if: steps.prepared.outputs.run_id == ''
         run: python tools/build.py --cuda-root "$RUNNER_TEMP/cuda-12.1"
       - name: Verify release artifacts
+        if: steps.prepared.outputs.run_id == ''
         run: |
           python tools/verify.py dist
           uvx --from twine==7.0.0 twine check --strict dist/*.whl dist/*.tar.gz
       - name: Test isolated wheel installation
+        if: steps.prepared.outputs.run_id == ''
         run: |
           # Hosted runners have no GPU driver. The toolkit stub permits import-only checks.
           mkdir -p "$RUNNER_TEMP/cuda-stub"
@@ -66,6 +80,7 @@ jobs:
             "$RUNNER_TEMP/wheel-test-$version/bin/python" -I tools/smoke.py --expected-version "$package_version"
           done
       - uses: actions/upload-artifact@v4
+        if: steps.prepared.outputs.run_id == ''
         with:
           name: release
           path: |
@@ -80,10 +95,13 @@ jobs:
     environment: pypi
     permissions:
       contents: read
+      actions: read
       id-token: write
     steps:
       - uses: actions/download-artifact@v4
         with:
+          github-token: ${{ github.token }}
+          run-id: ${{ needs.build.outputs.prepared_run }}
           name: release
           path: dist
       - uses: astral-sh/setup-uv@v6
