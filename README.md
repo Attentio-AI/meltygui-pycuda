@@ -56,6 +56,9 @@ Use `--sudo-docker` if Docker requires sudo. Source builds require a C++ compile
 Pushes to `main` and pull requests build and test without uploading. A `v*` tag
 or a manual run with `publish=true` publishes the verified wheel and source
 archive through PyPI trusted publishing. Published versions cannot be replaced.
+Publishing downloads the existing artifacts from a successful release-workflow
+run for the exact source commit; it does not rebuild or retest. Run preparation
+again if those artifacts are missing or expired.
 
 Configure a pending GitHub publisher at https://pypi.org/manage/account/publishing/:
 
